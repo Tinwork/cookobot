@@ -1,0 +1,33 @@
+{
+  "name": "cookobot",
+  "version": "1.0.0",
+  "description": "Chatbot",
+  "main": "index.js",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "body-parser": "^1.17.1",
+    "botbuilder": "^3.7.0",
+    "dotenv-extended": "^1.0.4",
+    "express": "^4.15.2",
+    "nodemon": "^1.11.0",
+    "request-promise": "^4.2.0"
+  },
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tinwork/cookobot.git"
+  },
+  "keywords": [
+    "chatbot",
+    "food"
+  ],
+  "author": "Antoine Renault <antoine.renault.mmi@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tinwork/cookobot/issues"
+  },
+  "homepage": "https://github.com/Tinwork/cookobot#readme"
+}
