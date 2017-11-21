@@ -17,13 +17,13 @@ const recogniser = new cognitiveServices.QnAMakerRecognizer({
   subscriptionKey: process.env.SUBSCRIPTION_KEY
 })
 
-const dialog = new cognitiveServices.QnAMakerDialog({
-  recognizers: [recogniser],
-  defaultMessage: 'Default message'
-})
+// const dialog = new cognitiveServices.QnAMakerDialog({
+//   recognizers: [recogniser],
+//   defaultMessage: 'Default message'
+// })
 
 const luisEndpoint =
-  'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/35aa771f-ce0f-47b4-aa6f-dab385a8e620?subscription-key=7079e6989b494df4988560a8470cc3a9&spellCheck=true&verbose=true&timezoneOffset=0'
+  'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/419d8afc-3d48-4d4d-8bd7-1e3a336b24e0?subscription-key=8dd0e25c23e4489e96437cb340d378b8&verbose=true&timezoneOffset=0'
 const luisRecognizer = new builder.LuisRecognizer(luisEndpoint)
 bot.recognizer(luisRecognizer)
 
@@ -32,32 +32,6 @@ bot.recognizer(luisRecognizer)
 //
 
 bot.dialog('/', dialog)
-bot
-  .dialog('HomePilot', [
-    (session, args, next) => {
-      const intent = args.intent
-
-      const DEFAULT_OBJECT = {
-        entity: 'Not found',
-        score: 0
-      }
-
-      const device = builder.EntityRecognizer.findEntity(intent.entities, 'HomeAutomation.Device') || DEFAULT_OBJECT
-      const operation = builder.EntityRecognizer.findEntity(intent.entities, 'HomeAutomation.Operation') || DEFAULT_OBJECT
-      const room = builder.EntityRecognizer.findEntity(intent.entities, 'HomeAutomation.Room') || DEFAULT_OBJECT
-
-      const data = `
-        Main intent : ${intent.intent} \n
-        Device : ${device.entity} ${device.score}
-        Operation : ${operation.entity} ${operation.score}
-        Room : ${room.entity} ${room.score}`
-
-      session.endDialog(data)
-    }
-  ])
-  .triggerAction({
-    matches: 'HomeAutomation.TurnOn'
-  })
 
 //
 // EXPORTS
