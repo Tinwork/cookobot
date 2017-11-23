@@ -2,7 +2,7 @@ require('dotenv-extended').load()
 const path = require('path')
 const express = require('express')
 const bodyParser = require('body-parser')
-const { connector, bot } = require('./src/bot')
+const { connector, bot } = require('./src/init')
 
 const app = express()
 app.use(express.static('public'))
