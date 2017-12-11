@@ -40,6 +40,13 @@ const DEFAULT_OBJECT = {
 }
 
 //
+// BOT UTILITIES FUNCTION
+//
+
+// Example of bot recognizer RegexExpRecognizer
+// bot.recognizer(new builder.RegExpRecognizer('CancelIntent', { en_us: /^(cancel|nevermind)/i, ja_jp: /^(キャンセル)/ }))
+
+//
 // UTILITES FUNCTION
 //
 
@@ -107,9 +114,6 @@ const entityList = [
     }
   }
 ]
-
-// Example of bot recognizer RegexExpRecognizer
-// bot.recognizer(new builder.RegExpRecognizer('CancelIntent', { en_us: /^(cancel|nevermind)/i, ja_jp: /^(キャンセル)/ }))
 
 const mealListDialog = []
 const mealShowDialog = []
