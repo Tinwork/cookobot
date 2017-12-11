@@ -98,6 +98,7 @@ const setMethodOfPayment = session => session
 const entityList = [
   (session, args) => {
     try {
+      // GraphQL test with Github API
       const data = defaultQuery().then(response => {
         session.endDialog(JSON.stringify(response))
       })
@@ -106,6 +107,9 @@ const entityList = [
     }
   }
 ]
+
+// Example of bot recognizer RegexExpRecognizer
+// bot.recognizer(new builder.RegExpRecognizer('CancelIntent', { en_us: /^(cancel|nevermind)/i, ja_jp: /^(キャンセル)/ }))
 
 const mealListDialog = []
 const mealShowDialog = []
@@ -118,10 +122,13 @@ const processCommandDialog = []
 // DIALOGS DECLARATION
 //
 
-bot.dialog('/entity', entityList).triggerAction({ matches: /^help/i })
+// bot.dialog('/', entityList)
 
-bot.dialog('/mealList', mealListDialog)
-bot.dialog('/mealShow', mealShowDialog)
+// Only used in debug
+// bot.dialog('/entity', entityList).triggerAction({ matches: /^help/i })
+
+bot.dialog('/mealList', mealListDialog).triggerAction({ matches: 'Meals.List' })
+bot.dialog('/mealShow', mealShowDialog) // must be called by code
 
 bot.dialog('/addToCart', addToCartDialog)
 bot.dialog('/removeFromCart', removeFromCartDialog)
