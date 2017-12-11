@@ -115,21 +115,48 @@ const entityList = [
   }
 ]
 
-const mealListDialog = []
-const mealShowDialog = []
-const addToCartDialog = []
-const removeFromCartDialog = []
-const cartShowDialog = []
-const processCommandDialog = []
+const mealListDialog = [
+  session => {
+    session.endDialog('Here a list of our products, API is in WIP.')
+  }
+]
+
+const mealShowDialog = [
+  session => {
+    session.endDialog('Here a list of One product, API is in WIP.')
+  }
+]
+
+const addToCartDialog = [
+  session => {
+    session.endDialog('Add to cart, API is in WIP.')
+  }
+]
+
+const removeFromCartDialog = [
+  session => {
+    session.endDialog('Remove from cart, API is in WIP.')
+  }
+]
+
+const cartShowDialog = [
+  session => {
+    session.endDialog('Here is your current cart, API is in WIP.')
+  }
+]
+
+const processCommandDialog = [
+  session => {
+    session.endDialog('We will process your command, wait in there, API is in WIP.')
+  }
+]
 
 //
 // DIALOGS DECLARATION
 //
 
+// Debug methods
 // bot.dialog('/', entityList)
-
-// Only used in debug
-// bot.dialog('/entity', entityList).triggerAction({ matches: /^help/i })
 
 bot.dialog('/mealList', mealListDialog).triggerAction({ matches: 'Meals.List' })
 bot.dialog('/mealShow', mealShowDialog) // must be called by code
