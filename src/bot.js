@@ -39,6 +39,25 @@ const DEFAULT_OBJECT = {
   score: 0
 }
 
+const PRODUCTS = [
+  {
+    title: 'Rillettes de saumon',
+    description: 'Des rillettes moitié saumon frais, moitié fumé, émiettées à la main et réveillées avec un jus de citron.',
+    price: '4.50€'
+  },
+  { title: 'Harengs fumés & pommes de terre', description: 'Filet de hareng fumé et patates fondantes, vinaigrette à la moutarde de Meaux.', price: '4.20€' },
+  {
+    title: 'Potatoes aux épices cajun',
+    description: "De grosses pommes de terre frottées aux épices à réchauffer au four et servies avec une mayonnaise à l'estragon maison.",
+    price: '4.90€'
+  },
+  {
+    title: 'Linguine alla puttanesca',
+    description: "Des pâtes al dente dans une sauce tomate relevée avec de l'ail, des morceaux d'olives noires, des câpres, des anchois et du piment !",
+    price: '7.90€'
+  }
+]
+
 //
 // BOT UTILITIES FUNCTION
 //
