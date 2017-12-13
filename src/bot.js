@@ -62,8 +62,7 @@ const PRODUCTS = [
 // BOT UTILITIES FUNCTION
 //
 
-// Example of bot recognizer RegexExpRecognizer
-// bot.recognizer(new builder.RegExpRecognizer('CancelIntent', { en_us: /^(cancel|nevermind)/i, ja_jp: /^(キャンセル)/ }))
+// bot.recognizer(new builder.RegExpRecognizer('CancelIntent', { en_us: /^(cancel|nevermind|stop)/i }))
 
 //
 // UTILITES FUNCTION
@@ -136,7 +135,21 @@ const entityList = [
 
 const mealListDialog = [
   session => {
-    session.endDialog('Here a list of our products, API is in WIP.')
+    const mappedProducts = PRODUCTS.map(product => product.title)
+    // TODO: Add choice from category
+    builder.Prompts.choice(session, 'Here a list of our products, API is in WIP.', mappedProducts, { listStyle: builder.ListStyle.button })
+  },
+  (session, results, next) => {
+    const entity = PRODUCTS.filter(product => product.title === results.response.entity)
+    if (entity) {
+      session.send("You choosed '%s'", JSON.stringify(entity[0]))
+      // session.beginDialog('chooseAction')
+    } else {
+      session.send("We didn't understand")
+      session.replaceDialog('/mealList', { reprompt: true })
+    }
+
+    // TODO: Add cart
   }
 ]
 
@@ -181,7 +194,11 @@ const processCommandDialog = [
 // Address.add	4
 // Address.remove	2
 
-bot.dialog('/mealList', mealListDialog).triggerAction({ matches: 'Meals.List' })
+bot
+  .dialog('/mealList', mealListDialog)
+  .triggerAction({ matches: 'Meals.List' })
+  .cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel\b/i })
+
 bot.dialog('/mealShow', mealShowDialog).triggerAction({ matches: 'Meal.show' })
 
 bot.dialog('/addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
