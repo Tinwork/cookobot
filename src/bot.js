@@ -158,14 +158,18 @@ const processCommandDialog = [
 // Debug methods
 // bot.dialog('/', entityList)
 
+// Intent Name	Utterances
+// Address.add	4
+// Address.remove	2
+
 bot.dialog('/mealList', mealListDialog).triggerAction({ matches: 'Meals.List' })
-bot.dialog('/mealShow', mealShowDialog) // must be called by code
+bot.dialog('/mealShow', mealShowDialog).triggerAction({ matches: 'Meal.show' })
 
-bot.dialog('/addToCart', addToCartDialog)
-bot.dialog('/removeFromCart', removeFromCartDialog)
-bot.dialog('/cartShow', cartShowDialog)
+bot.dialog('/addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
+bot.dialog('/removeFromCart', removeFromCartDialog).triggerAction({ matches: 'Cart.remove' })
+bot.dialog('/cartShow', cartShowDialog).triggerAction({ matches: 'Cart.list' })
 
-bot.dialog('/processCommand', processCommandDialog)
+bot.dialog('/processCommand', processCommandDialog).triggerAction({ matches: 'Command.process' })
 
 module.exports = {
   bot,
