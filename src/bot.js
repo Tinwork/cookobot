@@ -122,6 +122,8 @@ const removeFromCart = session => (session, id) => {
   return session
 }
 
+const resetCart = session => (session.privateConversationData.cart = undefined)
+
 const getCart = session => session.privateConversationData.cart || false
 
 const constructCart = (session, cart) => {
@@ -224,7 +226,9 @@ const addToCartDialog = [
 
 const removeFromCartDialog = [
   session => {
-    session.endDialog('Remove from cart, API is in WIP.')
+    session.send('Remove from cart, API is in WIP.')
+    resetCart(session)
+    session.endDialog('Cart is reset.')
   }
 ]
 
@@ -245,12 +249,15 @@ const cartShowDialog = [
       )
       session.send(carrousel)
     } else {
-      session.send("You don't have a cart, do you want to add item to it ?.")
-      // TODO: Add Choice / Redirect to Meal.list
+      builder.Prompts.confirm(session, "You don't have a cart, do you want to add item to it ?")
     }
   },
   (session, results) => {
-    console.log(results)
+    if (results.response) {
+      session.replaceDialog('/mealList', { reprompt: true })
+    } else {
+      session.endDialog('Okay')
+    }
   }
 ]
 
