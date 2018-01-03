@@ -237,11 +237,20 @@ const cartShowDialog = [
       const carrousel = new builder.Message(session)
       carrousel.attachmentLayout(builder.AttachmentLayout.carousel)
       carrousel.attachments(transformedCart)
-      session.send('Here is your current cart, API is in WIP.')
+      carrousel.suggestedActions(
+        builder.SuggestedActions.create(session, [
+          builder.CardAction.imBack(session, 'I want to confirm my cart', 'Confirm cart'),
+          builder.CardAction.imBack(session, 'I want to reset my cart', 'Reset cart')
+        ])
+      )
       session.send(carrousel)
     } else {
       session.send("You don't have a cart, do you want to add item to it ?.")
+      // TODO: Add Choice / Redirect to Meal.list
     }
+  },
+  (session, results) => {
+    console.log(results)
   }
 ]
 
