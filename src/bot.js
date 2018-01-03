@@ -170,7 +170,6 @@ const mealListDialog = [
   (session, results, next) => {
     const entity = PRODUCTS.filter(product => product.title === results.response.entity)
     if (entity) {
-      session.send("You choosed '%s'", JSON.stringify(entity[0]))
       session.conversationData.currentProduct = entity[0]
       session.beginDialog('chooseAction')
     } else {
@@ -184,12 +183,9 @@ const mealListDialog = [
 
 const chooseActionDialog = [
   session => {
-    session.send('Current Product: "%s" ', JSON.stringify(session.conversationData.currentProduct))
     builder.Prompts.choice(session, 'What do you want to do with this product ?', ['Add it to cart', 'Show information about it'])
   },
   (session, results) => {
-    session.send('results.response.entity: "%s" ', JSON.stringify(results.response.entity))
-    console.log(results.response.index)
     switch (results.response.index) {
       case 0:
         session.beginDialog('addToCart')
