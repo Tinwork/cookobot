@@ -268,7 +268,7 @@ const processCommandDialog = [
 //
 
 // Debug methods
-// bot.dialog('/', entityList)
+bot.dialog('/', entityList).triggerAction({ matches: /\bmenu\b/i })
 
 bot
   .dialog('/mealList', mealListDialog)
