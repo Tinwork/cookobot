@@ -270,10 +270,6 @@ const processCommandDialog = [
 // Debug methods
 // bot.dialog('/', entityList)
 
-// Intent Name	Utterances
-// Address.add	4
-// Address.remove	2
-
 bot
   .dialog('/mealList', mealListDialog)
   .triggerAction({ matches: 'Meals.List' })
