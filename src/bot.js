@@ -28,7 +28,7 @@ bot.recognizer(luisRecognizer)
 // EXPORTS
 //
 
-const { defaultQuery } = require('./graphql')
+const { mealListQuery } = require('./graphql')
 
 //
 // PRIVATE
@@ -151,7 +151,6 @@ const setMethodOfPayment = session => session
 const entityList = [
   (session, args) => {
     try {
-      // GraphQL test with Github API
       const data = defaultQuery().then(response => {
         session.endDialog(JSON.stringify(response))
       })
@@ -163,9 +162,17 @@ const entityList = [
 
 const mealListDialog = [
   session => {
-    const mappedProducts = PRODUCTS.map(product => product.title)
+    try {
+      // GraphQL test with Github API
+      const data = mealListQuery().then(response => {
+        console.log(response)
+        session.send(JSON.stringify(response))
+        builder.Prompts.choice(session, 'Here a list of our products, API is in WIP.', mappedProducts, { listStyle: builder.ListStyle.button })
+      })
+    } catch (e) {
+      console.error(e)
+    }
     // TODO: Add choice from category
-    builder.Prompts.choice(session, 'Here a list of our products, API is in WIP.', mappedProducts, { listStyle: builder.ListStyle.button })
   },
   (session, results, next) => {
     const entity = PRODUCTS.filter(product => product.title === results.response.entity)

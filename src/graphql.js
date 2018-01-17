@@ -22,6 +22,20 @@ const query = `
     }
   }
 `
+
+const mealList = `
+    product {
+      entity_id
+      code
+      category {
+        label {
+          locale
+          value
+        }
+      }
+    }
+`
+
 const operationName = 'SlabQueries'
 
 const apolloFetch = createApolloFetch({ uri })
@@ -34,6 +48,15 @@ const defaultQuery = () => {
   })
 }
 
+const mealListQuery = () => {
+  return new Promise((resolve, reject) => {
+    apolloFetch({ mealList, operationName })
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
 module.exports = {
-  defaultQuery
+  defaultQuery,
+  mealListQuery
 }
