@@ -28,7 +28,7 @@ bot.recognizer(luisRecognizer)
 // EXPORTS
 //
 
-const { mealListQuery } = require('./graphql')
+const { categoryListQuery } = require('./graphql')
 
 //
 // PRIVATE
@@ -110,7 +110,7 @@ const addToCart = (session, data, number) => {
   if (typeof session.privateConversationData.cart === 'undefined') {
     session.privateConversationData.cart = {}
   }
-  session.privateConversationData.cart[data.title] = Object.assign(data, { number })
+  session.privateConversationData.cart[data.code] = Object.assign(data, { number })
   return session.privateConversationData.cart
 }
 
@@ -128,9 +128,9 @@ const getCart = session => session.privateConversationData.cart || false
 
 const constructCart = (session, cart) => {
   return Object.values(cart).map(product => {
+    console.log(product)
     return new builder.HeroCard(session)
-      .title(product.title)
-      .subtitle(`${product.description}`)
+      .title(product.value)
       .text(`Number: ${product.number}`)
       .images([
         builder.CardImage.create(
@@ -138,7 +138,10 @@ const constructCart = (session, cart) => {
           product.thumbnail || 'http://fscluster.org/sites/default/files/styles/core-group-featured-image/public/default-image.png?itok=VQtWqtdp'
         )
       ])
-      .buttons([builder.CardAction.imBack(session, 'Change number', 'changeNumber')])
+      .buttons([
+        builder.CardAction.imBack(session, `Change the number for ${product.value}`, 'Change the number'),
+        builder.CardAction.imBack(session, `Delete product ${product.value} from the cart`, 'Delete the product')
+      ])
   })
 }
 
@@ -151,7 +154,7 @@ const setMethodOfPayment = session => session
 const entityList = [
   (session, args) => {
     try {
-      const data = defaultQuery().then(response => {
+      const data = categoryListQuery().then(response => {
         session.endDialog(JSON.stringify(response))
       })
     } catch (e) {
@@ -160,24 +163,77 @@ const entityList = [
   }
 ]
 
+function getDataFromLocale (data) {
+  return data[0].value
+}
+
+function constructCategories (data) {
+  return data.reduce((memo, category) =>{
+    if (category.products.length > 0) {
+      category.description = getDataFromLocale(category.description)
+
+      memo[getDataFromLocale(category.label)] = {
+        code: category.code,
+        products: category.products,
+        thumbnail: category.thumbnail,
+        description: getDataFromLocale(category.description),
+        label: getDataFromLocale(category.label)
+      }
+    }
+    return memo
+  }, {}) 
+}
+
+function constructProduct (product) {
+  console.log(product)
+  return Object.assign({}, product, {
+    value: getDataFromLocale(product.label)
+  })
+}
+
+function constructProducts (products) {
+  return products.reduce((memo, product) => {
+    const p = constructProduct (product)
+    if (p) {
+      memo[p.value] = p
+    }
+    return memo
+  }, {})
+}
+
 const mealListDialog = [
   session => {
     try {
       // GraphQL test with Github API
-      const data = mealListQuery().then(response => {
-        console.log(response)
-        session.send(JSON.stringify(response))
-        builder.Prompts.choice(session, 'Here a list of our products, API is in WIP.', mappedProducts, { listStyle: builder.ListStyle.button })
+      categoryListQuery().then(response => {
+        const mappedCategories = constructCategories(response.data.category)
+
+        session.conversationData.categories = response.data.category
+        session.conversationData.mappedCategories = mappedCategories
+        builder.Prompts.choice(session, 'Here a list of our categories', mappedCategories, { listStyle: builder.ListStyle.button })
       })
     } catch (e) {
       console.error(e)
+      session.replaceDialog('/mealList', { reprompt: true })
     }
-    // TODO: Add choice from category
   },
   (session, results, next) => {
-    const entity = PRODUCTS.filter(product => product.title === results.response.entity)
+    const entity = session.conversationData.mappedCategories[results.response.entity]
     if (entity) {
-      session.conversationData.currentProduct = entity[0]
+      session.conversationData.currentCategory = entity
+      const mappedProducts = constructProducts(entity.products)
+      session.conversationData.mappedProducts = mappedProducts
+      builder.Prompts.choice(session, 'Here a list of our products', mappedProducts, { listStyle: builder.ListStyle.button })
+    } else {
+      session.send("We didn't understand")
+      session.replaceDialog('/mealList', { reprompt: true })
+    }
+  },
+  (session, results, next) => {
+    const entity = session.conversationData.mappedProducts[results.response.entity]
+    if (entity) {
+      console.log(entity)
+      session.conversationData.currentProduct = entity
       session.beginDialog('chooseAction')
     } else {
       session.send("We didn't understand")
@@ -188,7 +244,7 @@ const mealListDialog = [
 
 const chooseActionDialog = [
   session => {
-    builder.Prompts.choice(session, 'What do you want to do with this product ?', ['Add it to cart', 'Show information about it'])
+    builder.Prompts.choice(session, 'What do you want to do with this product ?', ['Add it to cart', 'Show information about it'], { listStyle: builder.ListStyle.button })
   },
   (session, results) => {
     switch (results.response.index) {
