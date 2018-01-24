@@ -183,8 +183,6 @@ const mealListDialog = [
       session.send("We didn't understand")
       session.replaceDialog('/mealList', { reprompt: true })
     }
-
-    // TODO: Add cart
   }
 ]
 
