@@ -128,7 +128,6 @@ const getCart = session => session.privateConversationData.cart || false
 
 const constructCart = (session, cart) => {
   return Object.values(cart).map(product => {
-    console.log(product)
     return new builder.HeroCard(session)
       .title(product.value)
       .text(`Number: ${product.number}`)
@@ -323,6 +322,19 @@ const processCommandDialog = [
     session.endDialog('We will process your command, wait in there, API is in WIP.')
   }
 ]
+const cartChangeNumberDialog = [
+  (session, intent) => {
+    const entity = builder.EntityRecognizer.findEntity(intent.entities, 'Meals')
+    session.endDialog('Change number')
+  }
+]
+
+const cartRemoveProductDialog = [
+    (session, intent) => {
+      const entity = builder.EntityRecognizer.findEntity(intent.entities, 'Meals')
+    session.endDialog('Change number')
+  }
+]
 
 //
 // DIALOGS DECLARATION
@@ -342,9 +354,12 @@ bot.dialog('/cartShow', cartShowDialog).triggerAction({ matches: 'Cart.list' })
 
 bot.dialog('processCommand', processCommandDialog).triggerAction({ matches: 'Command.process' })
 bot.dialog('chooseAction', chooseActionDialog)
+
 bot.dialog('addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
 bot.dialog('removeFromCart', removeFromCartDialog).triggerAction({ matches: 'Cart.remove' })
 bot.dialog('mealShow', mealShowDialog).triggerAction({ matches: 'Meal.show' })
+bot.dialog('/cartChangeNumber', cartChangeNumberDialog).triggerAction({ matches: 'Cart.changeNumber' })
+bot.dialog('/cartRemoveProduct', cartRemoveProductDialog).triggerAction({ matches: 'Cart.removeProduct' })
 
 module.exports = {
   bot,
