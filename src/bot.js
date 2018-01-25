@@ -29,7 +29,7 @@ bot.recognizer(luisRecognizer)
 //
 
 const { categoryListQuery } = require('./module/graphql')
-const { addToCart, getCart, resetCart, constructCart } = require('./module/cart')
+const { addToCart, getCart, resetCart, constructCart, getProductFromCart } = require('./module/cart')
 const { addAnAddress } = require('./module/address')
 const { setMethodOfPayment } = require('./module/payment')
 
@@ -214,7 +214,7 @@ const removeFromCartDialog = [
 const cartShowDialog = [
   session => {
     const currentCart = getCart(session)
-    if (currentCart) {
+    if (currentCart && Object.keys(currentCart).length !== 0 && currentCart.constructor === Object) {
       const transformedCart = constructCart(session, currentCart)
 
       const carrousel = new builder.Message(session)
@@ -246,17 +246,40 @@ const processCommandDialog = [
     session.endDialog('We will process your command, wait in there.')
   }
 ]
+
 const cartChangeNumberDialog = [
-  (session, intent) => {
-    const entity = builder.EntityRecognizer.findEntity(intent.entities, 'Meals')
-    session.endDialog('Change number')
+  (session, intent, next) => {
+    const entity = session.message.text.match(/Change the number for (.+)/)
+    const cart = getCart(session)
+    const product = getProductFromCart(cart, 'value', entity[1])
+    session.conversationData.currentCartProduct = product
+    if (product) {
+      builder.Prompts.number(session, 'How many do you want to order ?')
+    } else {
+      session.endDialog('You don\'t have this element in cart')
+    }
+  },
+  (session, results) => {
+    const cart = getCart(session)
+    if ( session.conversationData.currentCartProduct && results.response > 0) {
+      cart[session.conversationData.currentCartProduct.id].number = results.response
+      session.beginDialog('/cartShow')
+    } else if ( session.conversationData.currentCartProduct && results.response === 0) {
+      delete cart[session.conversationData.currentCartProduct.id]
+      session.beginDialog('/cartShow')
+    } else {
+      session.endDialog('Please retry')
+    }
   }
 ]
 
 const cartRemoveProductDialog = [
-    (session, intent) => {
-      const entity = builder.EntityRecognizer.findEntity(intent.entities, 'Meals')
-    session.endDialog('Change number')
+  (session, args, intent) => {
+    const entity = session.message.text.match(/Delete product (.+) from the cart/)
+    const cart = getCart(session)
+    const product = getProductFromCart(cart, 'value', entity[1])
+    delete cart[product.id]
+    session.beginDialog('/cartShow')
   }
 ]
 
@@ -280,8 +303,8 @@ bot.dialog('addAnAnotherOne', addAnAnotherOneDialog)
 bot.dialog('/cartShow', cartShowDialog).triggerAction({ matches: 'Cart.list' })
 bot.dialog('addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
 bot.dialog('removeFromCart', removeFromCartDialog).triggerAction({ matches: 'Cart.remove' })
-bot.dialog('/cartChangeNumber', cartChangeNumberDialog).triggerAction({ matches: 'Cart.changeNumber' })
-bot.dialog('/cartRemoveProduct', cartRemoveProductDialog).triggerAction({ matches: 'Cart.removeProduct' })
+bot.dialog('/cartChangeNumber', cartChangeNumberDialog).triggerAction({ matches: /Change the number for (.+)/ })
+bot.dialog('/cartRemoveProduct', cartRemoveProductDialog).triggerAction({ matches: /Delete product (.+) from the cart/ })
 
 module.exports = {
   bot,

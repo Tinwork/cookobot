@@ -38,10 +38,19 @@ const constructCart = (session, cart) => {
   })
 }
 
+function getProductFromCart(cart, attribute, value) {
+  return Object.entries(cart).reduce((memo, [code, data] ) => {
+    if (!memo && data[attribute] === value) {
+      memo = Object.assign(data, { id: code })
+    }
+    return memo
+  }, false)
+}
 
 module.exports = {
   addToCart,
   getCart,
   resetCart,
-  constructCart
+  constructCart,
+  getProductFromCart
 }
