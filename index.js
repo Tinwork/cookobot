@@ -32,5 +32,9 @@ app.get('/', (req, res) => {
 app.post('/api/messages', connector.listen())
 
 app.listen(app.get('port'), () => {
+  console.log('process.env.MICROSOFT_APP_ID', process.env.MICROSOFT_APP_ID)
+  console.log('process.env.MICROSOFT_APP_PASSWORD', process.env.MICROSOFT_APP_PASSWORD)
+  console.log('process.env.KNOWLEDGE_BASE_ID', process.env.KNOWLEDGE_BASE_ID)
+  console.log('process.env.SUBSCRIPTION_KEY', process.env.SUBSCRIPTION_KEY)
   console.log('Node app is running on port', app.get('port'))
 })
