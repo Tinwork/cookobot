@@ -174,9 +174,6 @@ const addToCartDialog = [
     if (session.conversationData.currentProduct) {
       if (results.response && results.response > 0) {
         const currentCart = addToCart(session, session.conversationData.currentProduct, results.response)
-        // TODO: Add question "Do you want to add an another one ?"
-        // yes -> MealList
-        // no -> Menu
         session.beginDialog('addAnAnotherOne')
       } else {
         session.send('Please choose an number superior to 0')
@@ -205,7 +202,6 @@ const addAnAnotherOneDialog = [
 
 const removeFromCartDialog = [
   session => {
-    session.send('Remove from cart, API is in WIP.')
     resetCart(session)
     session.endDialog('Cart is reset.')
   }
@@ -242,7 +238,7 @@ const cartShowDialog = [
 
 const processCommandDialog = [
   session => {
-    // Add an address
+    // TODO: Add an address
     session.endDialog('We will process your command, wait in there.')
   }
 ]
@@ -290,7 +286,7 @@ const cartRemoveProductDialog = [
 // Debug methods
 bot.dialog('/', entityList).triggerAction({ matches: /\bmenu\b/i })
 
-// Break in category list
+// TODO: Break in category list
 bot
   .dialog('/mealList', mealListDialog)
   .triggerAction({ matches: 'Meals.List' })
