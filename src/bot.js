@@ -118,7 +118,7 @@ const mealListDialog = [
 
         session.conversationData.categories = response.data.category
         session.conversationData.mappedCategories = mappedCategories
-        builder.Prompts.choice(session, 'Here a list of our categories', mappedCategories, { listStyle: builder.ListStyle.button })
+        builder.Prompts.choice(session, 'What type of product do you want to order ?', mappedCategories, { listStyle: builder.ListStyle.button })
       })
     } catch (e) {
       console.error(e)
@@ -131,7 +131,7 @@ const mealListDialog = [
       session.conversationData.currentCategory = entity
       const mappedProducts = constructProducts(entity.products)
       session.conversationData.mappedProducts = mappedProducts
-      builder.Prompts.choice(session, 'Here a list of our products', mappedProducts, { listStyle: builder.ListStyle.button })
+      builder.Prompts.choice(session, 'Here a list of our products inside this category', mappedProducts, { listStyle: builder.ListStyle.button })
     } else {
       session.send("We didn't understand")
       session.replaceDialog('/mealList', { reprompt: true })
