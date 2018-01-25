@@ -252,14 +252,13 @@ const getAddressDialog = [
       }, ['Add an another address'])
       builder.Prompts.choice(session, 'Where do you want to be delivred', mappedAdresses, { listStyle: builder.ListStyle.button })
     } else {
-      session.beginDialog('addAddress')
+      session.replaceDialog('addAddress')
     }
   },
   (session, results) => {
     if (results.response.entity === "Add an another address") {
-      session.beginDialog('addAddress')
+      session.replaceDialog('addAddress')
     } else {
-      session.send(`You have choosed : ${JSON.stringify(results.response.entity)}`)
       const cart = getCart(session)
       const items = Object.entries(cart).reduce((memo, [code, item]) => {
         const data = builder.ReceiptItem.create(session, '', item.value)
