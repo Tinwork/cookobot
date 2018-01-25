@@ -282,6 +282,20 @@ const cartRemoveProductDialog = [
 // DIALOGS DECLARATION
 //
 
+bot.dialog('firstRun', function (session) {    
+  session.userData.firstRun = true;
+  session.send("Hello")
+  session.send("Welcome here, you can type `menu` for some idea where to start !")
+}).triggerAction({
+  onFindAction: (context, callback) => {
+    if (!context.userData.firstRun) {
+      callback(null, 1.1);
+    } else {
+      callback(null, 0.0);
+    }
+  }
+});
+
 // Debug methods
 bot.dialog('/', entityList).triggerAction({ matches: /\bmenu\b/i })
 
