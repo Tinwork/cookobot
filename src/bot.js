@@ -54,8 +54,7 @@ const DEFAULT_OBJECT = {
 
 const getAllEntities = (objectEntities, arrayEntities) => {
   return arrayEntities.reduce((memo, entityName) => {
-    // TODO: Need to modify to not take in account HomeAutomation
-    const entity = builder.EntityRecognizer.findEntity(intent.entities, `HomeAutomation.${entityName}`) || DEFAULT_OBJECT
+    const entity = builder.EntityRecognizer.findEntity(intent.entities, entityName) || DEFAULT_OBJECT
     memo[entityName] = entity
     return memo
   }, {})
@@ -84,22 +83,16 @@ function getDataFromLocale (data) {
 function constructCategories (data) {
   return data.reduce((memo, category) =>{
     if (category.products.length > 0) {
-      category.description = getDataFromLocale(category.description)
-
-      memo[getDataFromLocale(category.label)] = {
-        code: category.code,
-        products: category.products,
-        thumbnail: category.thumbnail,
+      memo[getDataFromLocale(category.label)] = Object.assign({}, category, {
         description: getDataFromLocale(category.description),
         label: getDataFromLocale(category.label)
-      }
+      })
     }
     return memo
   }, {}) 
 }
 
 function constructProduct (product) {
-  console.log(product)
   return Object.assign({}, product, {
     value: getDataFromLocale(product.label)
   })
@@ -107,7 +100,7 @@ function constructProduct (product) {
 
 function constructProducts (products) {
   return products.reduce((memo, product) => {
-    const p = constructProduct (product)
+    const p = constructProduct(product)
     if (p) {
       memo[p.value] = p
     }
@@ -118,7 +111,6 @@ function constructProducts (products) {
 const mealListDialog = [
   session => {
     try {
-      // GraphQL test with Github API
       categoryListQuery().then(response => {
         const mappedCategories = constructCategories(response.data.category)
 
@@ -146,7 +138,6 @@ const mealListDialog = [
   (session, results, next) => {
     const entity = session.conversationData.mappedProducts[results.response.entity]
     if (entity) {
-      console.log(entity)
       session.conversationData.currentProduct = entity
       session.beginDialog('chooseAction')
     } else {
@@ -185,7 +176,7 @@ const addToCartDialog = [
         const currentCart = addToCart(session, session.conversationData.currentProduct, results.response)
       } else {
         session.send('Please choose an number superior to 0')
-        session.replaceDialog('/addToCart', { reprompt: true })
+        session.replaceDialog('addToCart', { reprompt: true })
       }
     } else {
       session.endDialog('No item')
@@ -268,7 +259,7 @@ bot
 bot.dialog('processCommand', processCommandDialog).triggerAction({ matches: 'Command.process' })
 bot.dialog('chooseAction', chooseActionDialog)
 bot.dialog('/cartShow', cartShowDialog).triggerAction({ matches: 'Cart.list' })
-bot.dialog('/addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
+bot.dialog('addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
 bot.dialog('removeFromCart', removeFromCartDialog).triggerAction({ matches: 'Cart.remove' })
 bot.dialog('/cartChangeNumber', cartChangeNumberDialog).triggerAction({ matches: 'Cart.changeNumber' })
 bot.dialog('/cartRemoveProduct', cartRemoveProductDialog).triggerAction({ matches: 'Cart.removeProduct' })
