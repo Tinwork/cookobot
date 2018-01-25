@@ -66,13 +66,15 @@ const getAllEntities = (objectEntities, arrayEntities) => {
 
 const entityList = [
   (session, args) => {
-    try {
-      const data = categoryListQuery().then(response => {
-        session.endDialog(JSON.stringify(response))
-      })
-    } catch (e) {
-      console.error(e)
-    }
+    const message = new builder.Message(session)
+	    .text("What can we do for you ?")
+      .suggestedActions(
+        builder.SuggestedActions.create(session, [
+          builder.CardAction.imBack(session, 'I want to order', 'Order'),
+          builder.CardAction.imBack(session, 'I want to see my cart', 'Show my cart')
+        ])
+      )
+    session.send(message)
   }
 ]
 
