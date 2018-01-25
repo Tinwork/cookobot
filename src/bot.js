@@ -7,6 +7,11 @@ const connector = new builder.ChatConnector({
   appPassword: process.env.MICROSOFT_APP_PASSWORD
 })
 
+console.log('process.env.MICROSOFT_APP_ID', process.env.MICROSOFT_APP_ID)
+console.log('process.env.MICROSOFT_APP_PASSWORD', process.env.MICROSOFT_APP_PASSWORD)
+console.log('process.env.KNOWLEDGE_BASE_ID', process.env.KNOWLEDGE_BASE_ID)
+console.log('process.env.SUBSCRIPTION_KEY', process.env.SUBSCRIPTION_KEY)
+
 const bot = new builder.UniversalBot(connector)
 
 const recogniser = new cognitiveServices.QnAMakerRecognizer({
@@ -28,7 +33,15 @@ bot.recognizer(luisRecognizer)
 // EXPORTS
 //
 
-const { categoryListQuery } = require('./graphql')
+const { categoryListQuery } = require('./module/graphql')
+const { 
+  addToCart,
+  getCart,
+  resetCart,
+  constructCart
+} = require('./module/cart')
+const { addAnAddress } = require('./module/address')
+const { setMethodOfPayment } = require('./module/payment')
 
 //
 // PRIVATE
@@ -38,36 +51,6 @@ const DEFAULT_OBJECT = {
   entity: 'Not found',
   score: 0
 }
-
-const PRODUCTS = [
-  {
-    title: 'Rillettes de saumon',
-    description: 'Des rillettes moitié saumon frais, moitié fumé, émiettées à la main et réveillées avec un jus de citron.',
-    price: '4.50€',
-    thumbnail:
-      'https://static.frichti.co/frichti/image/fetch/w_636,h_420,c_fit/https://cdn.shopify.com/s/files/1/0832/9391/products/rillettes-de-thon.jpg?v=1484325255'
-  },
-  {
-    title: 'Harengs fumés & pommes de terre',
-    description: 'Filet de hareng fumé et patates fondantes, vinaigrette à la moutarde de Meaux.',
-    price: '4.20€',
-    thumbnail:
-      'https://static.frichti.co/frichti/image/fetch/w_636,h_420,c_fit/https://cdn.shopify.com/s/files/1/0832/9391/products/salade-de-PdT-harengs-1-OK.jpg?v=1491803066'
-  },
-  {
-    title: 'Potatoes aux épices cajun',
-    description: "De grosses pommes de terre frottées aux épices à réchauffer au four et servies avec une mayonnaise à l'estragon maison.",
-    price: '4.90€',
-    thumbnail: 'https://static.frichti.co/frichti/image/fetch/w_1310,h_880,c_fit/https://cdn.shopify.com/s/files/1/0832/9391/products/patatoes.jpg?v=1484569119'
-  },
-  {
-    title: 'Linguine alla puttanesca',
-    description: "Des pâtes al dente dans une sauce tomate relevée avec de l'ail, des morceaux d'olives noires, des câpres, des anchois et du piment !",
-    price: '7.90€',
-    thumbnail:
-      'https://static.frichti.co/frichti/image/fetch/w_636,h_420,c_fit/https://cdn.shopify.com/s/files/1/0832/9391/products/SAUMON-FUME-HIGHLANDS.jpg?v=1511172603'
-  }
-]
 
 //
 // BOT UTILITIES FUNCTION
@@ -87,64 +70,6 @@ const getAllEntities = (objectEntities, arrayEntities) => {
     return memo
   }, {})
 }
-
-const getAllMeals = () => {
-  // TODO: Return a call to server with a mutation
-  return []
-}
-
-const getMeal = mealName => {
-  // TODO: Return a call to server with a mutation
-  return {}
-}
-
-const addAnAddress = (session, data) => {
-  if (typeof session.userData.address === 'undefined') {
-    session.userData.address = []
-  }
-  session.userData.address.push(data.address)
-  return session
-}
-
-const addToCart = (session, data, number) => {
-  if (typeof session.privateConversationData.cart === 'undefined') {
-    session.privateConversationData.cart = {}
-  }
-  session.privateConversationData.cart[data.code] = Object.assign(data, { number })
-  return session.privateConversationData.cart
-}
-
-const removeFromCart = session => (session, id) => {
-  if (typeof session.privateConversationData.cart === 'undefined') {
-    return session
-  }
-  delete session.privateConversationData.cart[id]
-  return session
-}
-
-const resetCart = session => (session.privateConversationData.cart = undefined)
-
-const getCart = session => session.privateConversationData.cart || false
-
-const constructCart = (session, cart) => {
-  return Object.values(cart).map(product => {
-    return new builder.HeroCard(session)
-      .title(product.value)
-      .text(`Number: ${product.number}`)
-      .images([
-        builder.CardImage.create(
-          session,
-          product.thumbnail || 'http://fscluster.org/sites/default/files/styles/core-group-featured-image/public/default-image.png?itok=VQtWqtdp'
-        )
-      ])
-      .buttons([
-        builder.CardAction.imBack(session, `Change the number for ${product.value}`, 'Change the number'),
-        builder.CardAction.imBack(session, `Delete product ${product.value} from the cart`, 'Delete the product')
-      ])
-  })
-}
-
-const setMethodOfPayment = session => session
 
 //
 // BOT FUNCTION
@@ -272,10 +197,15 @@ const addToCartDialog = [
   },
   (session, results) => {
     if (session.conversationData.currentProduct) {
-      const currentCart = addToCart(session, session.conversationData.currentProduct, results.response)
-      session.endDialog(JSON.stringify(currentCart))
+      if (results.response && results.response > 0) {
+        const currentCart = addToCart(session, session.conversationData.currentProduct, results.response)
+      } else {
+        session.send('Please choose an number superior to 0')
+        session.replaceDialog('/addToCart', { reprompt: true })
+      }
     } else {
       session.endDialog('No item')
+      session.replaceDialog('/mealList', { reprompt: true })
     }
   }
 ]
@@ -319,7 +249,8 @@ const cartShowDialog = [
 
 const processCommandDialog = [
   session => {
-    session.endDialog('We will process your command, wait in there, API is in WIP.')
+    // Add an address
+    session.endDialog('We will process your command, wait in there.')
   }
 ]
 const cartChangeNumberDialog = [
@@ -355,7 +286,7 @@ bot.dialog('/cartShow', cartShowDialog).triggerAction({ matches: 'Cart.list' })
 bot.dialog('processCommand', processCommandDialog).triggerAction({ matches: 'Command.process' })
 bot.dialog('chooseAction', chooseActionDialog)
 
-bot.dialog('addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
+bot.dialog('/addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
 bot.dialog('removeFromCart', removeFromCartDialog).triggerAction({ matches: 'Cart.remove' })
 bot.dialog('mealShow', mealShowDialog).triggerAction({ matches: 'Meal.show' })
 bot.dialog('/cartChangeNumber', cartChangeNumberDialog).triggerAction({ matches: 'Cart.changeNumber' })
