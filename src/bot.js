@@ -174,13 +174,31 @@ const addToCartDialog = [
     if (session.conversationData.currentProduct) {
       if (results.response && results.response > 0) {
         const currentCart = addToCart(session, session.conversationData.currentProduct, results.response)
+        // TODO: Add question "Do you want to add an another one ?"
+        // yes -> MealList
+        // no -> Menu
+        session.beginDialog('addAnAnotherOne')
       } else {
         session.send('Please choose an number superior to 0')
         session.replaceDialog('addToCart', { reprompt: true })
       }
     } else {
-      session.endDialog('No item')
+      session.send('No item')
       session.replaceDialog('/mealList', { reprompt: true })
+    }
+  }
+]
+
+const addAnAnotherOneDialog = [
+  session => {
+    builder.Prompts.confirm(session, "Do you want to add an another one ?")
+  },
+  (session, results) => {
+    if (results.response) {
+      session.replaceDialog('/mealList', { reprompt: true })
+    } else {
+      session.send('Okay')
+      session.replaceDialog('/cartShow')
     }
   }
 ]
@@ -256,8 +274,9 @@ bot
   .cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel\b/i })
 
 // Cart
-bot.dialog('processCommand', processCommandDialog).triggerAction({ matches: 'Command.process' })
+bot.dialog('processCommand', processCommandDialog).triggerAction({ matches: 'Cart.process' })
 bot.dialog('chooseAction', chooseActionDialog)
+bot.dialog('addAnAnotherOne', addAnAnotherOneDialog)
 bot.dialog('/cartShow', cartShowDialog).triggerAction({ matches: 'Cart.list' })
 bot.dialog('addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
 bot.dialog('removeFromCart', removeFromCartDialog).triggerAction({ matches: 'Cart.remove' })
