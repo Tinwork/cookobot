@@ -151,15 +151,12 @@ const mealListDialog = [
 
 const chooseActionDialog = [
   session => {
-    builder.Prompts.choice(session, 'What do you want to do with this product ?', ['Add it to cart', 'Show information about it'], { listStyle: builder.ListStyle.button })
+    builder.Prompts.choice(session, 'What do you want to do with this product ?', ['Add it to cart'], { listStyle: builder.ListStyle.button })
   },
   (session, results) => {
     switch (results.response.index) {
       case 0:
         session.beginDialog('addToCart')
-        break
-      case 1:
-        session.beginDialog('mealShow')
         break
       default:
         session.replaceDialog('chooseAction', { reprompt: true })
