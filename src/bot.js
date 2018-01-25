@@ -30,7 +30,7 @@ bot.recognizer(luisRecognizer)
 
 const { categoryListQuery } = require('./module/graphql')
 const { addToCart, getCart, resetCart, constructCart, getProductFromCart } = require('./module/cart')
-const { addAnAddress } = require('./module/address')
+const { addAnAddress, getAddresses } = require('./module/address')
 const { setMethodOfPayment } = require('./module/payment')
 
 //
@@ -187,7 +187,7 @@ const addToCartDialog = [
 
 const addAnAnotherOneDialog = [
   session => {
-    builder.Prompts.confirm(session, "Do you want to add an another one ?")
+    builder.Prompts.confirm(session, "Do you want to add an another item ?")
   },
   (session, results) => {
     if (results.response) {
@@ -237,8 +237,58 @@ const cartShowDialog = [
 
 const processCommandDialog = [
   session => {
-    // TODO: Add an address
-    session.endDialog('We will process your command, wait in there.')
+    session.send('We will process your command, wait in there.')
+    session.beginDialog('getAddress')
+  }
+]
+
+const getAddressDialog = [
+  session => {
+    const addresses = getAddresses(session)
+    if (addresses[0] !== null && addresses[0] && addresses.length > 0) {
+      const mappedAdresses = addresses.reduce((memo, address) => {
+        memo.push(address)
+        return memo
+      }, ['Add an another address'])
+      builder.Prompts.choice(session, 'Where do you want to be delivred', mappedAdresses, { listStyle: builder.ListStyle.button })
+    } else {
+      session.beginDialog('addAddress')
+    }
+  },
+  (session, results) => {
+    if (results.response.entity === "Add an another address") {
+      session.beginDialog('addAddress')
+    } else {
+      session.send(`You have choosed : ${JSON.stringify(results.response.entity)}`)
+      const cart = getCart(session)
+      const items = Object.entries(cart).reduce((memo, [code, item]) => {
+        const data = builder.ReceiptItem.create(session, '', item.value)
+          .quantity(item.number)
+          .image(builder.CardImage.create(session, item.thumbnail))
+        memo.push(data)
+        return memo
+      }, [])
+      const card = new builder.ReceiptCard(session)
+        .title('Receipt Card from command')
+        .facts([
+            builder.Fact.create(session, 'Address', results.response.entity)
+        ])
+        .items(items)
+      const msg = new builder.Message(session).addAttachment(card);
+      session.send(msg)
+    }
+  }
+]
+
+const addAddressDialog = [
+  session => {
+    session.dialogData.form = {}
+    builder.Prompts.text(session, 'Please enter where you want to be delivred (Simplify for the demo)');
+  },
+  (session, results) => {
+    session.endDialog(`Hello ${results.response}!`);
+    addAnAddress(session, results.response)
+    session.beginDialog('getAddress')
   }
 ]
 
@@ -307,13 +357,18 @@ bot
 
 // Cart
 bot.dialog('processCommand', processCommandDialog).triggerAction({ matches: 'Cart.process' })
-bot.dialog('chooseAction', chooseActionDialog)
-bot.dialog('addAnAnotherOne', addAnAnotherOneDialog)
+
 bot.dialog('/cartShow', cartShowDialog).triggerAction({ matches: 'Cart.list' })
 bot.dialog('addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
 bot.dialog('removeFromCart', removeFromCartDialog).triggerAction({ matches: 'Cart.remove' })
 bot.dialog('/cartChangeNumber', cartChangeNumberDialog).triggerAction({ matches: /Change the number for (.+)/ })
 bot.dialog('/cartRemoveProduct', cartRemoveProductDialog).triggerAction({ matches: /Delete product (.+) from the cart/ })
+
+// Address
+bot.dialog('chooseAction', chooseActionDialog)
+bot.dialog('addAnAnotherOne', addAnAnotherOneDialog)
+bot.dialog('getAddress', getAddressDialog)
+bot.dialog('addAddress', addAddressDialog)
 
 module.exports = {
   bot,
