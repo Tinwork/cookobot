@@ -7,11 +7,6 @@ const connector = new builder.ChatConnector({
   appPassword: process.env.MICROSOFT_APP_PASSWORD
 })
 
-console.log('process.env.MICROSOFT_APP_ID', process.env.MICROSOFT_APP_ID)
-console.log('process.env.MICROSOFT_APP_PASSWORD', process.env.MICROSOFT_APP_PASSWORD)
-console.log('process.env.KNOWLEDGE_BASE_ID', process.env.KNOWLEDGE_BASE_ID)
-console.log('process.env.SUBSCRIPTION_KEY', process.env.SUBSCRIPTION_KEY)
-
 const bot = new builder.UniversalBot(connector)
 
 const recogniser = new cognitiveServices.QnAMakerRecognizer({
