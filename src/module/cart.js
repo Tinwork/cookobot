@@ -1,3 +1,5 @@
+const builder = require('botbuilder')
+
 const addToCart = (session, data, number) => {
   if (typeof session.privateConversationData.cart === 'undefined') {
     session.privateConversationData.cart = {}

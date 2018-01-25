@@ -34,12 +34,7 @@ bot.recognizer(luisRecognizer)
 //
 
 const { categoryListQuery } = require('./module/graphql')
-const { 
-  addToCart,
-  getCart,
-  resetCart,
-  constructCart
-} = require('./module/cart')
+const { addToCart, getCart, resetCart, constructCart } = require('./module/cart')
 const { addAnAddress } = require('./module/address')
 const { setMethodOfPayment } = require('./module/payment')
 
@@ -185,12 +180,6 @@ const chooseActionDialog = [
   }
 ]
 
-const mealShowDialog = [
-  session => {
-    session.endDialog('Here a list of One product, API is in WIP.')
-  }
-]
-
 const addToCartDialog = [
   session => {
     builder.Prompts.number(session, 'How many do you want to order ?')
@@ -274,21 +263,18 @@ const cartRemoveProductDialog = [
 // Debug methods
 bot.dialog('/', entityList).triggerAction({ matches: /\bmenu\b/i })
 
+// Break in category list
 bot
   .dialog('/mealList', mealListDialog)
   .triggerAction({ matches: 'Meals.List' })
   .cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel\b/i })
 
-bot.dialog('/mealShow', mealShowDialog).triggerAction({ matches: 'Meal.show' })
-
-bot.dialog('/cartShow', cartShowDialog).triggerAction({ matches: 'Cart.list' })
-
+// Cart
 bot.dialog('processCommand', processCommandDialog).triggerAction({ matches: 'Command.process' })
 bot.dialog('chooseAction', chooseActionDialog)
-
+bot.dialog('/cartShow', cartShowDialog).triggerAction({ matches: 'Cart.list' })
 bot.dialog('/addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
 bot.dialog('removeFromCart', removeFromCartDialog).triggerAction({ matches: 'Cart.remove' })
-bot.dialog('mealShow', mealShowDialog).triggerAction({ matches: 'Meal.show' })
 bot.dialog('/cartChangeNumber', cartChangeNumberDialog).triggerAction({ matches: 'Cart.changeNumber' })
 bot.dialog('/cartRemoveProduct', cartRemoveProductDialog).triggerAction({ matches: 'Cart.removeProduct' })
 
