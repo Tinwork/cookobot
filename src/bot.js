@@ -352,22 +352,22 @@ bot.dialog('/', entityList).triggerAction({ matches: /\bmenu\b/i })
 bot
   .dialog('/mealList', mealListDialog)
   .triggerAction({ matches: 'Meals.List' })
-  .cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel\b/i })
+  .cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel|bye|dyop\b/i })
 
 // Cart
-bot.dialog('processCommand', processCommandDialog).triggerAction({ matches: 'Cart.process' })
+bot.dialog('processCommand', processCommandDialog).triggerAction({ matches: 'Cart.process' }).cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel|bye|dyop\b/i })
 
-bot.dialog('/cartShow', cartShowDialog).triggerAction({ matches: 'Cart.list' })
-bot.dialog('addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' })
-bot.dialog('removeFromCart', removeFromCartDialog).triggerAction({ matches: 'Cart.remove' })
-bot.dialog('/cartChangeNumber', cartChangeNumberDialog).triggerAction({ matches: /Change the number for (.+)/ })
-bot.dialog('/cartRemoveProduct', cartRemoveProductDialog).triggerAction({ matches: /Delete product (.+) from the cart/ })
+bot.dialog('/cartShow', cartShowDialog).triggerAction({ matches: 'Cart.list' }).cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel|bye|dyop\b/i })
+bot.dialog('addToCart', addToCartDialog).triggerAction({ matches: 'Cart.add' }).cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel|bye|dyop\b/i })
+bot.dialog('removeFromCart', removeFromCartDialog).triggerAction({ matches: 'Cart.remove' }).cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel|bye|dyop\b/i })
+bot.dialog('/cartChangeNumber', cartChangeNumberDialog).triggerAction({ matches: /Change the number for (.+)/ }).cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel|bye|dyop\b/i })
+bot.dialog('/cartRemoveProduct', cartRemoveProductDialog).triggerAction({ matches: /Delete product (.+) from the cart/ }).cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel|bye|dyop\b/i })
 
 // Address
-bot.dialog('chooseAction', chooseActionDialog)
-bot.dialog('addAnAnotherOne', addAnAnotherOneDialog)
-bot.dialog('getAddress', getAddressDialog)
-bot.dialog('addAddress', addAddressDialog)
+bot.dialog('chooseAction', chooseActionDialog).cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel|bye|dyop\b/i })
+bot.dialog('addAnAnotherOne', addAnAnotherOneDialog).cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel|bye|dyop\b/i })
+bot.dialog('getAddress', getAddressDialog).cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel|bye|dyop\b/i })
+bot.dialog('addAddress', addAddressDialog).cancelAction('CancelIntent', 'Canceling action', { matches: /\bcancel|bye|dyop\b/i })
 
 module.exports = {
   bot,
